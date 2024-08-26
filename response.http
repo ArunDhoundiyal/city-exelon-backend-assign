@@ -1,0 +1,34 @@
+POST http://localhost:3000/create_city
+Content-Type: application/json
+
+{
+    "cityName":"LajpatNagar",
+    "stateName":"Delhi",
+    "countryName":"India",
+    "population":564523,
+    "latitude":72.12345,
+    "longitude":70.34567
+}
+
+###
+
+PUT http://localhost:3000/update_city/noida
+Content-Type: application/json
+
+{
+    "population":896756,
+    "countryName":"India",
+    "cityName":"Mumbai",
+    "stateName":"Maharashtra",
+    "latitude":80.56347,
+    "longitude":74.98563
+
+}
+
+### 
+
+DELETE http://localhost:3000/delete_city/NoidaUttarPradesh
+
+### 
+
+GET http://localhost:3000/city
