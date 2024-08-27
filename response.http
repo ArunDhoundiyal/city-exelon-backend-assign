@@ -31,6 +31,6 @@ DELETE http://localhost:3000/delete_city/NoidaUttarPradesh
 
 ### 
 
-GET http://localhost:3000/city/?filter=464523&search=&sort=ASC&page=1&projection=
+GET http://localhost:3000/city/?filter=noida&search=&sort=ASC&page=1&projection=
 
 
