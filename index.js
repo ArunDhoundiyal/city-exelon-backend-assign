@@ -141,33 +141,107 @@ server_instance.delete(
 );
 
 // Method: GET (Get City API)
-// Design an API to retrieve cities from the collection.
-// Support pagination, filtering, sorting, searching, and projection.
-// Support the following query parameters:
-// 1. page: Page number for pagination
-// 2. limit: Maximum number of cities per page
-// 3. filter: Filter cities based on specified criteria
-// 4. sort: Sort cities based on a specified field and order
-// 5. search: Search for cities based on a search term.
-// 6. projection: Specify which fields to include or exclude from the response
-// sqlite> PRAGMA table_info(city);
-// 0|id|INTEGER|1||1
-// 1|city_name|TEXT|0||0
-// 2|state_name|TEXT|0||0
-// 3|country_name|TEXT|0||0
-// 4|population|INTEGER|0||0
-// 5|latitude|REAL|0||0
-// 6|longitude|REAL|0||0
-// sqlite>
-
 server_instance.get("/city", async (request, response) => {
-  const { page, filter, sort, search, projection } = request.query;
-  const offset = parseInt(page) > 0 ? page * 5 : 0;
+  const { page = 1, filter, sort = "ASC", search, projection } = request.query;
+  const checkProjection = projection ? projection : "*";
   const limit = 5;
+  const offset = (parseInt(page) - 1) * limit;
+
   let query;
-  if (!projection) {
-    if (search) {
-    }
+  let queryParams = [];
+
+  if (search && filter) {
+    query = `SELECT ${checkProjection} FROM city 
+             WHERE 
+               (city_name LIKE '%' || ? || '%' 
+                OR state_name LIKE '%' || ? || '%' 
+                OR country_name LIKE '%' || ? || '%' 
+                OR population LIKE '%' || ? || '%' 
+                OR latitude LIKE '%' || ? || '%' 
+                OR longitude LIKE '%' || ? || '%')
+             AND 
+               (city_name = ? 
+                OR state_name = ? 
+                OR country_name = ? 
+                OR population = ? 
+                OR latitude = ? 
+                OR longitude = ?)
+             ORDER BY population ${sort} 
+             LIMIT ? OFFSET ?;`;
+    queryParams = [
+      search,
+      search,
+      search,
+      search,
+      search,
+      search,
+      filter,
+      filter,
+      filter,
+      filter,
+      filter,
+      filter,
+      limit,
+      offset,
+    ];
+  } else if (search) {
+    query = `SELECT ${checkProjection} FROM city 
+             WHERE 
+               city_name LIKE '%' || ? || '%' 
+               OR state_name LIKE '%' || ? || '%' 
+               OR country_name LIKE '%' || ? || '%' 
+               OR population LIKE '%' || ? || '%' 
+               OR latitude LIKE '%' || ? || '%' 
+               OR longitude LIKE '%' || ? || '%' 
+             ORDER BY population ${sort} 
+             LIMIT ? OFFSET ?;`;
+    queryParams = [
+      search,
+      search,
+      search,
+      search,
+      search,
+      search,
+      limit,
+      offset,
+    ];
+  } else if (filter) {
+    query = `SELECT ${checkProjection} FROM city 
+             WHERE 
+               city_name = ? 
+               OR state_name = ? 
+               OR country_name = ? 
+               OR population = ? 
+               OR latitude = ? 
+               OR longitude = ? 
+             ORDER BY population ${sort} 
+             LIMIT ? OFFSET ?;`;
+    queryParams = [
+      filter,
+      filter,
+      filter,
+      filter,
+      filter,
+      filter,
+      limit,
+      offset,
+    ];
   } else {
+    query = `SELECT ${checkProjection} FROM city 
+             ORDER BY population ${sort} 
+             LIMIT ? OFFSET ?;`;
+    queryParams = [limit, offset];
+  }
+
+  try {
+    const allCity = await dataBase.all(query, queryParams);
+    if (allCity.length === 0) {
+      response.status(404).send("No City Found");
+    } else {
+      response.send(allCity);
+    }
+  } catch (error) {
+    console.error("Database query error:", error.message);
+    response.status(500).send(`Server Error ${error.message}`);
   }
 });

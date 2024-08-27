@@ -2,11 +2,11 @@ POST http://localhost:3000/create_city
 Content-Type: application/json
 
 {
-    "cityName":"LajpatNagar",
-    "stateName":"Delhi",
+    "cityName":"Faridabad",
+    "stateName":"Haryana",
     "countryName":"India",
     "population":564523,
-    "latitude":72.12345,
+    "latitude":70.12345,
     "longitude":70.34567
 }
 
@@ -31,4 +31,6 @@ DELETE http://localhost:3000/delete_city/NoidaUttarPradesh
 
 ### 
 
-GET http://localhost:3000/city
+GET http://localhost:3000/city/?filter=464523&search=&sort=ASC&page=1&projection=
+
+
